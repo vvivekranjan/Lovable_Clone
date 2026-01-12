@@ -14,9 +14,12 @@ A multi-agent system powered by LangGraph and Groq that automatically plans, arc
 
 ```
 .
-├── main.py                 # Entry point for the application
+├── main.py                 # CLI entry point for the application
+├── streamlit_app.py        # Streamlit UI for interactive agent debugging
+├── setup_streamlit.py      # Setup script for Streamlit UI
 ├── pyproject.toml         # Project configuration and dependencies
 ├── README.md              # This file
+├── STREAMLIT_GUIDE.md     # Comprehensive guide for Streamlit UI
 ├── Agent/
 │   ├── __init__.py       # Package initialization with exports
 │   ├── graph.py          # Multi-agent workflow orchestration
@@ -64,7 +67,30 @@ GROQ_API_KEY=your_api_key_here
 
 ## Usage
 
-### Running the Application
+### Option 1: Web UI (Recommended)
+
+The easiest way to interact with the agent is through the Streamlit web interface:
+
+```bash
+# Quick setup and launch
+python setup_streamlit.py
+
+# Or manually run the Streamlit app
+streamlit run streamlit_app.py
+```
+
+The app will open in your browser at `http://localhost:8501`
+
+**Features:**
+- 🎯 Interactive prompt input with real-time feedback
+- 📊 Tabbed results view (Plan, Architecture, Code Tasks, Full State)
+- 📋 Execution history with quick access to past runs
+- ⚙️ Adjustable recursion limit slider
+- 🎨 User-friendly interface with status indicators
+
+For detailed instructions, see [STREAMLIT_GUIDE.md](STREAMLIT_GUIDE.md)
+
+### Option 2: Command Line Interface
 
 ```bash
 python main.py [--recursion-limit N]
