@@ -38,6 +38,24 @@ def initialize_llm():
         return ChatAnthropic(api_key=api_key, model=model_name)
     elif api_provider == "google":
         return ChatGoogleGenerativeAI(api_key=api_key, model=model_name)
+    elif api_provider == "llama":
+        # Llama via Groq or Together AI
+        from langchain_groq import ChatGroq
+        return ChatGroq(api_key=api_key, model=model_name)
+    elif api_provider == "qwen":
+        # Qwen models via OpenAI-compatible API
+        return ChatOpenAI(
+            api_key=api_key,
+            model=model_name,
+            base_url="https://api.openai.com/v1"  # Can be customized for Qwen endpoint
+        )
+    elif api_provider == "deepseek":
+        # Deepseek models via OpenAI-compatible API
+        return ChatOpenAI(
+            api_key=api_key,
+            model=model_name,
+            base_url="https://api.deepseek.com/v1"
+        )
     else:
         # Default to Google
         return ChatGoogleGenerativeAI(api_key=api_key, model=model_name)

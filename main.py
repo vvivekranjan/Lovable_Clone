@@ -52,18 +52,18 @@ def setup_api_configuration():
     print("Welcome! Please configure your AI API settings.\n")
     
     # API Provider selection
-    providers = ["google", "openai", "anthropic"]
+    providers = ["google", "openai", "anthropic", "llama", "qwen", "deepseek"]
     print("Available providers:")
     for i, provider in enumerate(providers, 1):
         print(f"  {i}. {provider}")
     
     while True:
         try:
-            choice = int(input("\nSelect provider (1-3): "))
-            if 1 <= choice <= 3:
+            choice = int(input("\nSelect provider (1-6): "))
+            if 1 <= choice <= 6:
                 api_provider = providers[choice - 1]
                 break
-            print("Invalid choice. Please enter 1, 2, or 3.")
+            print("Invalid choice. Please enter 1-6.")
         except ValueError:
             print("Invalid input. Please enter a number.")
     
@@ -75,6 +75,12 @@ def setup_api_configuration():
         print("Get your API key: https://platform.openai.com/account/api-keys")
     elif api_provider == "anthropic":
         print("Get your API key: https://console.anthropic.com/")
+    elif api_provider == "llama":
+        print("Get your API key: https://console.groq.com/ or https://www.together.ai/")
+    elif api_provider == "qwen":
+        print("Get your API key: https://www.alibabacloud.com/")
+    elif api_provider == "deepseek":
+        print("Get your API key: https://platform.deepseek.com/")
     
     api_key = input(f"\nEnter your {api_provider} API key: ").strip()
     if not api_key:
@@ -85,7 +91,10 @@ def setup_api_configuration():
     model_suggestions = {
         "google": "gemini-2.5-flash",
         "openai": "gpt-4",
-        "anthropic": "claude-3-5-sonnet-20241022"
+        "anthropic": "claude-3-5-sonnet-20241022",
+        "llama": "llama-3.1-70b-versatile",
+        "qwen": "qwen-max",
+        "deepseek": "deepseek-chat"
     }
     default_model = model_suggestions.get(api_provider)
     

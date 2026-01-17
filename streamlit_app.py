@@ -109,7 +109,7 @@ def show_api_configuration_modal():
     # API Provider Selection
     api_provider = st.selectbox(
         "Select API Provider",
-        ["google", "openai", "anthropic"],
+        ["google", "openai", "anthropic", "llama", "qwen", "deepseek"],
         help="Choose your AI API provider"
     )
     
@@ -125,7 +125,10 @@ def show_api_configuration_modal():
     model_suggestions = {
         "google": "gemini-2.5-flash",
         "openai": "gpt-4",
-        "anthropic": "claude-3-5-sonnet-20241022"
+        "anthropic": "claude-3-5-sonnet-20241022",
+        "llama": "llama-3.1-70b-versatile",
+        "qwen": "qwen-max",
+        "deepseek": "deepseek-chat"
     }
     
     default_model = model_suggestions.get(api_provider, "")
@@ -142,6 +145,9 @@ def show_api_configuration_modal():
     - **Google:** Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
     - **OpenAI:** Visit [OpenAI Platform](https://platform.openai.com/account/api-keys)
     - **Anthropic:** Visit [Anthropic Console](https://console.anthropic.com/)
+    - **Llama:** Visit [Groq Console](https://console.groq.com/) or [Together AI](https://www.together.ai/)
+    - **Qwen:** Visit [Alibaba Cloud](https://www.alibabacloud.com/) or compatible provider
+    - **Deepseek:** Visit [Deepseek Platform](https://platform.deepseek.com/)
     """)
     
     col1, col2 = st.columns(2)
