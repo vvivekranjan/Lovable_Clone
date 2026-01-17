@@ -1,5 +1,5 @@
 from typing import TypedDict, List
-# from langchain_groq import ChatGroq
+from langchain_groq import ChatGroq
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
@@ -40,7 +40,6 @@ def initialize_llm():
         return ChatGoogleGenerativeAI(api_key=api_key, model=model_name)
     elif api_provider == "llama":
         # Llama via Groq or Together AI
-        from langchain_groq import ChatGroq
         return ChatGroq(api_key=api_key, model=model_name)
     elif api_provider == "qwen":
         # Qwen models via OpenAI-compatible API
