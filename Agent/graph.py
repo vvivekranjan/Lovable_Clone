@@ -1,6 +1,8 @@
 from typing import TypedDict, List
 # from langchain_groq import ChatGroq
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
 from langchain_core.globals import set_verbose, set_debug
 from langchain.agents import create_agent
 from langgraph.graph import StateGraph, END
@@ -9,6 +11,7 @@ from dotenv import load_dotenv
 from .prompts import planner_prompt, architect_prompt, coder_system_prompt
 from .states import Plan, TaskPlan, CoderState
 from .tools import read_file, write_file, list_files, get_current_directory, init_project_root
+from .config import get_api_provider, get_api_key, get_model_name
 
 load_dotenv()
 
@@ -18,8 +21,30 @@ set_verbose(True)
 # Initialize project root at startup
 init_project_root()
 
-# llm = ChatGroq(model="openai/gpt-oss-120b")
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
+
+def initialize_llm():
+    """Initialize the LLM based on configuration.
+    
+    Returns:
+        Initialized language model instance
+    """
+    api_provider = get_api_provider()
+    api_key = get_api_key()
+    model_name = get_model_name()
+    
+    if api_provider == "openai":
+        return ChatOpenAI(api_key=api_key, model=model_name)
+    elif api_provider == "anthropic":
+        return ChatAnthropic(api_key=api_key, model=model_name)
+    elif api_provider == "google":
+        return ChatGoogleGenerativeAI(api_key=api_key, model=model_name)
+    else:
+        # Default to Google
+        return ChatGoogleGenerativeAI(api_key=api_key, model=model_name)
+
+
+# Initialize LLM with configured API
+llm = initialize_llm()
 
 
 class AgentState(TypedDict):

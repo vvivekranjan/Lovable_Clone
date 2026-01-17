@@ -5,8 +5,9 @@ from typing import Any, Dict, Generator
 import json
 from datetime import datetime
 
-from Agent.graph import agent, AgentState
+from Agent.graph import agent, AgentState, initialize_llm
 from Agent.states import Plan, TaskPlan, CoderState, ImplementationTask
+from Agent.config import is_configured, load_config, update_api_config, get_api_provider, get_api_key, get_model_name
 
 # Configure page
 st.set_page_config(
@@ -72,10 +73,132 @@ if "current_execution" not in st.session_state:
     st.session_state.current_execution = None
 if "agent_state" not in st.session_state:
     st.session_state.agent_state = None
+if "api_configured" not in st.session_state:
+    st.session_state.api_configured = is_configured()
+if "show_api_config" not in st.session_state:
+    st.session_state.show_api_config = not is_configured()
+
+
+def show_api_configuration_modal():
+    """Display API configuration modal."""
+    st.markdown("""
+    <style>
+        .api-config-container {
+            background-color: #f0f2f6;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .api-config-title {
+            color: #1f77b4;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<div class="api-config-container">', unsafe_allow_html=True)
+    st.markdown('<div class="api-config-title">⚙️ API Configuration</div>', unsafe_allow_html=True)
+    
+    st.markdown("""
+    Welcome! Before we get started, please configure your AI API settings.
+    You'll need to provide your API key and choose a model.
+    """)
+    
+    # API Provider Selection
+    api_provider = st.selectbox(
+        "Select API Provider",
+        ["google", "openai", "anthropic"],
+        help="Choose your AI API provider"
+    )
+    
+    # API Key Input
+    api_key = st.text_input(
+        "API Key",
+        type="password",
+        placeholder="Enter your API key here",
+        help="Your API key will be securely stored locally"
+    )
+    
+    # Model Name Input
+    model_suggestions = {
+        "google": "gemini-2.5-flash",
+        "openai": "gpt-4",
+        "anthropic": "claude-3-5-sonnet-20241022"
+    }
+    
+    default_model = model_suggestions.get(api_provider, "")
+    model_name = st.text_input(
+        "Model Name",
+        value=default_model,
+        placeholder="e.g., gpt-4, claude-3-opus-20240229, gemini-2.5-flash",
+        help="Enter the model name/ID you want to use"
+    )
+    
+    # Information section
+    st.info("""
+    **How to get your API key:**
+    - **Google:** Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+    - **OpenAI:** Visit [OpenAI Platform](https://platform.openai.com/account/api-keys)
+    - **Anthropic:** Visit [Anthropic Console](https://console.anthropic.com/)
+    """)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("✅ Save Configuration", use_container_width=True, key="save_api_config"):
+            if not api_key or not model_name:
+                st.error("❌ Please fill in all fields")
+            else:
+                try:
+                    update_api_config(api_provider, api_key, model_name)
+                    st.session_state.api_configured = True
+                    st.session_state.show_api_config = False
+                    st.success("✅ Configuration saved successfully!")
+                    # Reinitialize LLM with new config
+                    from Agent import graph
+                    graph.llm = initialize_llm()
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"❌ Error saving configuration: {str(e)}")
+    
+    with col2:
+        if st.button("🔄 Edit Existing", use_container_width=True, key="edit_api_config"):
+            # Load current config
+            config = load_config()
+            st.session_state.show_api_config = True
+            st.rerun()
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+# Show API configuration modal if not configured
+if st.session_state.show_api_config or not st.session_state.api_configured:
+    show_api_configuration_modal()
+    st.stop()
+
 
 # Sidebar
 with st.sidebar:
     st.title("⚙️ Settings")
+    
+    # API Configuration section
+    st.subheader("🔑 API Configuration")
+    current_provider = get_api_provider()
+    current_model = get_model_name()
+    st.info(f"""
+    **Current Configuration:**
+    - Provider: {current_provider.upper()}
+    - Model: {current_model}
+    """)
+    
+    if st.button("🔄 Change API Settings", use_container_width=True, key="sidebar_api_config"):
+        st.session_state.show_api_config = True
+        st.rerun()
+    
+    st.divider()
+    
     recursion_limit = st.slider(
         "Recursion Limit",
         min_value=10,
